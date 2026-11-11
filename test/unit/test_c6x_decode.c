@@ -97,9 +97,11 @@ bool test_header_out_of_reach(void) {
 	// the word at 0 is two compact slots, but nothing says so
 	mu_assert_true(c6x_decode(c674x, image_le, 4, 0, false, NULL, NULL, &insn), "decoded");
 	mu_assert_eq(insn.size, C6X_WORD_SIZE, "a word gets its 32-bit reading");
-	mu_assert_eq(insn.id, C6X_INS_LDH, "as in a packet without a header");
+	mu_assert_eq(insn.word, 0xeaba0246, "as in a packet without a header");
+	mu_assert_eq(insn.id, C6X_INS_INVALID, "which has creg 111, reserved outside a header");
 	mu_assert_true(c6x_decode(c674x, image_le, 4, 0, false, read_nothing, NULL, &insn), "decoded");
-	mu_assert_eq(insn.id, C6X_INS_LDH, "an image that cannot be read is the same");
+	mu_assert_eq(insn.size, C6X_WORD_SIZE, "an image that cannot be read is the same");
+	mu_assert_eq(insn.word, 0xeaba0246, "word for word");
 
 	// a 32-bit opcode never starts at a half word, so this is a compact slot
 	mu_assert_true(c6x_decode(c674x, image_le + 2, 4, 2, false, NULL, NULL, &insn), "consumed");

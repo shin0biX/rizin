@@ -69,3 +69,22 @@ d "[a0] sploopd 3;add .l1 a4,a5,a6;nop 1;nop 1;nop 1;spkernel 0x22;nop 1;nop 1;n
 # in a packet whose header names the doubleword size as dis6x does.
 d "ldndw .d1 *a8--[a9],b11:b10;stndw .d1 b11:b10,*a8--[a9];nop 1;ldndw .d1 *+a4(0x1),a7:a6;stndw .d1 a7:a6,*+a4(0x1);lddw .d1 *+a4[0x1],a7:a6;ldndw .d1 *+a4(0x2),a7:a6;stndw .d1 a7:a6,*+a4(0x2);lddw .d1 *+a4[0x2],a7:a6;ldndw .d1 *+a4(0x7),a7:a6;stndw .d1 a7:a6,*+a4(0x7);lddw .d1 *+a4[0x7],a7:a6;.fphead n, l, dw/ndw, w, nobr, nosat, 0b1111100" 263da105763da1056e0c7c2074206c207c4074406c407ce074e06ce0000084ef
 d "stndw .d1 a7:a6,*a4--[0xf];lddw .d1 *a4--[0xf],a7:a6;ldndw .d1 *+a4(a1),a7:a6;stndw .d1 a7:a6,*+a4(a1);ldndw .d1 *+a4[a1],a7:a6;stndw .d1 a7:a6,*+a4[a1];ldndw .d1 *-a4(a1),a7:a6;stndw .d1 a7:a6,*-a4(a1);.fphead n, l, dw/ndw, w, nobr, nosat, 0b0000100" 74f5910364f511037c247424242b9003742b90032429100374291003000084e0
+
+# A compact load in a packet whose header selects the high register set keeps
+# its base register
+d "ldndw .d2 *b4,b19:b18;ldndw .d2 *+b4(0x8),b17:b16;ldndw .d2 *+b4[0x2],b9:b8;ldndw .d2 *+b4[0x3],b7:b6;add .l2 0x8,b15,b4;stndw .d2 b19:b18,*b4;stndw .d2 b17:b16,*+b4(0x8);stndw .d2 b9:b8,*+b4[0x2];stndw .d2 b7:b6,*+b4[0x3];.fphead n, h, dw/ndw, w, nobr, nosat, 0b0010001" 3d101d18a6439004a66390035a003d0235101518f6439004f663900300002ce2
+# Compact ADD and SUB on .D (Dx2op) are no ADDAW
+d "add .l1x a3,b5,a3;add .d1 a4,a3,a4;|| add .l1 a4,a3,a12;|| mvkh .s2 0xc177,b4;|| mvk .s1 0x140,a6;ldbu .d2 *+b14[0x2eec],b5;ldb .d2 *+b14[0x3564],b4;nop 3;.fphead n, l, w, bu, nobr, nosat, 0b0000001" b072b68179800c06ebbb600228a000031eecae022e64350200400000020020e0
+# A compact ADD in a packet whose header sets SAT is a SADD
+d "ldw .d2 *++b15[0x2],a11;nop 4;nop 3;sploop 2;ldw .d1 *a4++[0x1],a5;nop 4;mpy2 .m1 a5,a5,a7:a6;nop 3;sadd .s1 a6,a7,a5;intsp .l1 a5,a3;nop 4;.fphead n, l, w, bu, nobr, sat, 0b0010111" f7656e6c6e4ce60c5c0c6e6c30a014036e4cdac358099401006000000040e0e2
+# Sx2op, the compact .S ADD and SUB with src1 the destination
+d "add .s1 a0,a0,a0;sub .s2 b0,b1,b0;nop;nop;nop;nop;nop;nop;.fphead n, l, w, bu, nobr, nosat, 0b0000001" 2e00af08000000000000000000000000000000000000000000000000000020e0
+d "add .s1x a0,b0,a0;sub .s2x b0,a0,b0;nop;nop;nop;nop;nop;nop;.fphead n, l, w, bu, nobr, nosat, 0b0000001" 2e102f18000000000000000000000000000000000000000000000000000020e0
+# Dx5p adjusts B15 on .D2 only, a Dpp pair starts at an even register, and the
+# compact MVC to ILC is a .S2 instruction
+d "invalid;invalid;nop;nop;nop;nop;nop;nop;.fphead n, l, w, bu, nobr, nosat, 0b0000001" 771df71c000000000000000000000000000000000000000000000000000020e0
+# the .D1 Dx5p and an odd Dpp pair; dis6x: ADDAW.D1 B15,0x8,B15; .word 0x0000c0f6; NOP; NOP; NOP; NOP; NOP; NOP; .fphead n, l, W, BU, nobr, nosat, 0000001b
+d "invalid;invalid;nop;nop;nop;nop;nop;nop;.fphead n, l, w, bu, nobr, nosat, 0b0000001" 760df6c0000000000000000000000000000000000000000000000000000020e0
+d "invalid;mvc .s2 b0,ilc;nop;nop;nop;nop;nop;nop;.fphead n, l, w, bu, nobr, nosat, 0b0000001" f7c16fd8000000000000000000000000000000000000000000000000000020e0
+# the compact MVC to ILC on .S1; dis6x: MVC.S1 B0,ILC; NOP 1; NOP; NOP; NOP; NOP; NOP; NOP; .fphead n, l, W, BU, nobr, nosat, 0000001b
+d "invalid;nop 1;nop;nop;nop;nop;nop;nop;.fphead n, l, w, bu, nobr, nosat, 0b0000001" 6ed86e0c000000000000000000000000000000000000000000000000000020e0

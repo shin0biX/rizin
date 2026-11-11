@@ -20,3 +20,8 @@ d "rsqrdp .s1 a1:a0,a3:a2" a00b0401 0x0
 d "dcmpyr1 .m1 a1:a0,a3:a2,a5:a4" 70030812 0x0
 d "dccmpyr1 .m1 a1:a0,a3:a2,a5:a4" b0030812 0x0
 d "qsmpy32r1 .m1 a3:a2:a1:a0,a7:a6:a5:a4,a11:a10:a9:a8" b0061014 0x0
+
+# The double-word forms: DADD and DSUB on .L and .S, a constant applying to both
+# halves, and the pair forms of AND, ANDN, OR and XOR
+# DMV has a .L form too
+d "dmv .l1x a4,b4,a5:a4" 989d1002 0x0

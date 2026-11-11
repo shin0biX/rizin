@@ -40,3 +40,10 @@ d "invalid" 00600010 0x0
 d "invalid" 00000300 0x0
 d "invalid" 00800300 0x0
 d "idle" 00e00100 0x0 nop
+
+# C62x has sixteen registers a side and no A0 predicate: a register above B15,
+# a predicate on A0 and an offset register above B15 are invalid
+d "ldw .d2 *-b1[b5],b12" e6a80406 0x0
+d "invalid" e6a804c6 0x0
+d "invalid" e6a8040e 0x0
+d "invalid" e6a84406 0x0
